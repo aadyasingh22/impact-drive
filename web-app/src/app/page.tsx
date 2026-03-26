@@ -11,10 +11,10 @@ export default function Home() {
         <div className="text-2xl font-black tracking-tighter text-blue-900">
           IMPACT<span className="text-blue-500">DRIVE</span>
         </div>
-        <div className="flex gap-6 items-center font-bold">
+        <div className="flex gap-8 items-center font-bold">
           <Link href="/charities" className="text-neutral-500 hover:text-blue-600 transition-colors text-sm">Charities</Link>
           
-          {/* UPDATED LINK: Changed from /login to /signin */}
+          {/* CORRECTED LINK: Changed /login to /signin */}
           <Link href="/signin" className="text-neutral-900 hover:text-blue-600 transition-colors text-sm">Sign In</Link>
           
           <Link href="/subscribe" className="bg-blue-600 text-white px-6 py-3 rounded-2xl hover:bg-blue-700 transition-all transform hover:scale-105 shadow-xl shadow-blue-100 text-sm font-black">
@@ -34,7 +34,7 @@ export default function Home() {
             <h1 className="text-6xl md:text-7xl font-black tracking-tighter leading-[0.95] text-neutral-950">
               Transform your game into <span className="text-blue-600">global impact.</span>
             </h1>
-            <p className="text-xl text-neutral-500 leading-relaxed max-w-lg font-medium">
+            <p className="text-xl text-neutral-600 leading-relaxed max-w-lg font-bold">
               Track your performance, enter monthly prize draws, and automatically support the causes you care about.
             </p>
             <div className="flex gap-4 items-center pt-4">
@@ -52,11 +52,8 @@ export default function Home() {
                   <Heart size={80} className="text-pink-500 animate-pulse" />
                 </div>
                 <h2 className="text-5xl font-black tracking-tighter">Over $50,000 Raised</h2>
-                <p className="text-blue-200 text-lg font-medium max-w-xs">Join a community of players making a real difference every single month.</p>
+                <p className="text-blue-200 text-lg font-bold max-w-xs">Join a community of players making a real difference every single month.</p>
              </div>
-             {/* Decorative Elements */}
-             <div className="absolute bottom-10 left-10 w-20 h-20 bg-blue-500/20 rounded-full blur-3xl"></div>
-             <div className="absolute top-10 right-10 w-32 h-32 bg-indigo-500/20 rounded-full blur-3xl"></div>
           </div>
         </section>
 
@@ -65,7 +62,7 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-8">
             <div className="text-center mb-20">
               <h2 className="text-4xl font-black tracking-tight mb-4 text-neutral-900">How It Works</h2>
-              <p className="text-xl text-neutral-500 font-medium italic">Simple steps to rewards and charitable giving.</p>
+              <p className="text-xl text-neutral-500 font-bold italic">Simple steps to rewards and charitable giving.</p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
@@ -74,7 +71,7 @@ export default function Home() {
                   <Target size={36} />
                 </div>
                 <h3 className="text-2xl font-black text-neutral-900">1. Log Your Scores</h3>
-                <p className="text-neutral-500 leading-relaxed font-medium">Play your usual rounds and enter your Stableford scores into our tracking engine.</p>
+                <p className="text-neutral-700 leading-relaxed font-bold">Play your usual rounds and enter your Stableford scores into our tracking engine.</p>
               </div>
 
               <div className="flex flex-col items-center text-center gap-6 group">
@@ -82,7 +79,7 @@ export default function Home() {
                   <Trophy size={36} />
                 </div>
                 <h3 className="text-2xl font-black text-neutral-900">2. Win the Draw</h3>
-                <p className="text-neutral-500 leading-relaxed font-medium">Match your numbers in our algorithm-powered monthly draw to win from the prize pool.</p>
+                <p className="text-neutral-700 leading-relaxed font-bold">Match your numbers in our algorithm-powered monthly draw to win from the prize pool.</p>
               </div>
 
               <div className="flex flex-col items-center text-center gap-6 group">
@@ -90,7 +87,7 @@ export default function Home() {
                   <Heart size={36} />
                 </div>
                 <h3 className="text-2xl font-black text-neutral-900">3. Empower Charities</h3>
-                <p className="text-neutral-500 leading-relaxed font-medium">A fixed percentage of your subscription goes directly to the charity you choose.</p>
+                <p className="text-neutral-700 leading-relaxed font-bold">A fixed percentage of your subscription goes directly to the charity you choose.</p>
               </div>
             </div>
           </div>
