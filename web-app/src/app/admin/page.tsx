@@ -26,7 +26,7 @@ export default function AdminDashboard() {
       try {
         const { data: { session } } = await supabase.auth.getSession()
         if (!session) {
-          router.push('/login')
+          router.push('/signin')
         } else {
           setAdminEmail(session.user.email || 'Admin')
           await fetchStats()
