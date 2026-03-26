@@ -1,0 +1,25 @@
+# IDE and System files
+.DS_Store
+.vscode/
+
+# Dependencies
+node_modules/
+web-app/node_modules/
+
+# Next.js build output
+.next/
+web-app/.next/
+out/
+
+# PRODUCTION SECRETS (CRITICAL)
+.env
+.env.local
+.env.production
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
