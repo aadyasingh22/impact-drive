@@ -3,8 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { Heart, Trophy, Activity, CreditCard, LogOut, Plus, Target, Lock, Crown, TrendingUp } from 'lucide-react'
-// PRD: Visualization - Import Chart components
+import { Heart, Trophy, Activity, CreditCard, LogOut, Plus, Target, Lock, Crown, TrendingUp, Loader2 } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 type ScoreRecord = {
@@ -24,15 +23,13 @@ export default function Dashboard() {
   const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  // PRD: Real-time validation - Fetch scores for premium users
   const fetchScores = async (uid: string) => {
     const { data, error } = await supabase
       .from('scores')
       .select('id, score, date')
       .eq('user_id', uid)
       .order('date', { ascending: false })
-      .order('created_at', { ascending: false })
-      .limit(10) // Increased limit for better chart visualization
+      .limit(10)
 
     if (data && !error) {
       setScores(data)
@@ -43,7 +40,7 @@ export default function Dashboard() {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) {
-        router.push('/login')
+        router.push('/signin') // Updated to match your new route naming
         return
       }
 
@@ -73,10 +70,10 @@ export default function Dashboard() {
 
   const handleScoreSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!userId || subscriptionStatus !== 'active') return
+    if (!userId || subscriptionStatus !== 'active' || !score) return
     
     const numScore = parseInt(score)
-    if (numScore >= 1 && numScore <= 45 && scoreDate) {
+    if (numScore >= 1 && numScore <= 100 && scoreDate) {
       setIsSubmitting(true)
       const { error: insertError } = await supabase.from('scores').insert({
         user_id: userId,
@@ -92,165 +89,179 @@ export default function Dashboard() {
     }
   }
 
-  // Prepare data for Chart: Reverse to chronological order (oldest to newest)
   const chartData = [...scores].reverse().map(s => ({
     date: new Date(s.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
     pts: s.score
   }))
 
-  if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-neutral-50 font-sans text-blue-600">Loading profile...</div>
+  if (isLoading) return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-50 font-sans">
+      <Loader2 className="animate-spin text-blue-600 mb-4" size={40} />
+      <p className="text-neutral-500 font-medium">Syncing your impact data...</p>
+    </div>
+  )
 
   const isPremium = subscriptionStatus === 'active'
 
   return (
-    <div className="min-h-screen bg-neutral-50 font-sans">
-      <nav className="bg-white border-b border-neutral-200 px-8 py-4 flex justify-between items-center sticky top-0 z-10">
-        <div className="text-xl font-bold tracking-tighter text-blue-900 flex items-center gap-2">
-          <Target size={24} className="text-blue-600" />
-          Impact<span className="text-blue-500">Drive</span>
+    <div className="min-h-screen bg-neutral-50 font-sans text-neutral-900">
+      {/* Navbar */}
+      <nav className="bg-white border-b border-neutral-200 px-6 md:px-12 py-4 flex justify-between items-center sticky top-0 z-30 shadow-sm">
+        <div className="text-2xl font-black tracking-tighter text-blue-900 flex items-center gap-2">
+          <Target size={28} className="text-blue-600" />
+          IMPACT<span className="text-blue-500">DRIVE</span>
         </div>
-        <div className="flex items-center gap-6">
-          <span className="text-sm text-neutral-500">{userEmail}</span>
-          <button onClick={handleSignOut} className="text-neutral-500 hover:text-red-600 transition-colors flex items-center gap-2 text-sm font-medium">
-            <LogOut size={16} /> Sign Out
+        <div className="flex items-center gap-4 md:gap-8">
+          <div className="hidden md:block text-right">
+            <p className="text-[10px] uppercase font-bold text-neutral-400 tracking-widest">Logged In As</p>
+            <p className="text-sm font-bold text-neutral-800">{userEmail}</p>
+          </div>
+          <button onClick={handleSignOut} className="bg-neutral-100 p-2.5 rounded-xl text-neutral-600 hover:text-red-600 hover:bg-red-50 transition-all">
+            <LogOut size={20} />
           </button>
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto px-8 py-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <main className="max-w-7xl mx-auto px-6 md:px-12 py-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         <div className="lg:col-span-2 space-y-8">
-          {/* Performance Analytics & Tracking */}
-          <section className="bg-white rounded-2xl p-8 shadow-sm border border-neutral-100 relative overflow-hidden">
+          {/* Performance Analytics */}
+          <section className="bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-neutral-100 relative overflow-hidden transition-all hover:shadow-md">
             {!isPremium && (
-              <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center p-6 text-center">
-                <div className="bg-blue-600 text-white p-3 rounded-full mb-4 shadow-lg">
-                  <Lock size={24} />
+              <div className="absolute inset-0 bg-white/80 backdrop-blur-md z-20 flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
+                <div className="bg-blue-600 text-white p-4 rounded-2xl mb-6 shadow-xl rotate-3">
+                  <Lock size={32} />
                 </div>
-                <h3 className="text-xl font-bold text-neutral-900 mb-2">Advanced Analytics Locked</h3>
-                <p className="text-neutral-600 mb-6 max-w-sm">Upgrade to Premium to visualize your scoring trends and track every round.</p>
-                <button onClick={() => router.push('/subscribe')} className="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">
-                  Unlock Now
+                <h3 className="text-2xl font-black text-neutral-900 mb-3">Premium Performance Metrics</h3>
+                <p className="text-neutral-500 mb-8 max-w-sm font-medium">Visual charts and historical tracking are reserved for our Premium members.</p>
+                <button onClick={() => router.push('/subscribe')} className="bg-blue-600 text-white px-10 py-4 rounded-2xl font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 active:scale-95">
+                  UPGRADE TO UNLOCK
                 </button>
               </div>
             )}
             
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center justify-between mb-10">
               <div>
-                <h2 className="text-2xl font-bold text-neutral-900">Performance Trends</h2>
-                <p className="text-neutral-500 mt-1">Stability scores over your last 10 rounds.</p>
+                <h2 className="text-2xl font-black text-neutral-900 tracking-tight">Analytics Dashboard</h2>
+                <p className="text-neutral-500 font-medium">Historical performance visualization</p>
               </div>
-              <div className="bg-blue-50 p-3 rounded-xl text-blue-600">
-                <TrendingUp size={24} />
+              <div className="bg-blue-50 p-4 rounded-2xl text-blue-600">
+                <TrendingUp size={28} />
               </div>
             </div>
 
-            {/* Visual Chart - PRD: Data Visualization */}
-            {isPremium && scores.length > 1 && (
-              <div className="h-[250px] w-full mb-10">
+            {isPremium && scores.length > 1 ? (
+              <div className="h-[300px] w-full mb-10 bg-neutral-50 rounded-2xl p-4 border border-neutral-100">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                    <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} />
-                    <YAxis domain={[0, 45]} axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} />
-                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
-                    <Line type="monotone" dataKey="pts" stroke="#2563eb" strokeWidth={3} dot={{ r: 4, fill: '#2563eb' }} activeDot={{ r: 6 }} />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
+                    <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#6b7280', fontSize: 12, fontWeight: 600}} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{fill: '#6b7280', fontSize: 12, fontWeight: 600}} dx={-10} />
+                    <Tooltip contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', fontWeight: 'bold' }} />
+                    <Line type="monotone" dataKey="pts" stroke="#2563eb" strokeWidth={4} dot={{ r: 6, fill: '#2563eb', strokeWidth: 3, stroke: '#fff' }} activeDot={{ r: 8, strokeWidth: 0 }} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
+            ) : isPremium && (
+              <div className="bg-neutral-50 rounded-2xl py-20 text-center border-2 border-dashed border-neutral-200 mb-10">
+                <p className="text-neutral-400 font-bold italic text-lg">Add at least 2 scores to generate your chart</p>
+              </div>
             )}
 
-            <form onSubmit={handleScoreSubmit} className="flex flex-col sm:flex-row gap-4 mb-8">
+            {/* Input Form with DARK FONT */}
+            <form onSubmit={handleScoreSubmit} className="flex flex-col md:flex-row gap-4 mb-10 bg-neutral-100 p-3 rounded-2xl">
               <input
                 type="number"
-                disabled={!isPremium}
+                disabled={!isPremium || isSubmitting}
                 placeholder="Score"
-                className="w-full sm:w-32 bg-neutral-50 border border-neutral-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
+                className="flex-1 md:flex-[0.3] bg-white border border-neutral-200 rounded-xl px-5 py-4 focus:ring-2 focus:ring-blue-500 outline-none text-neutral-900 font-black placeholder-neutral-400 transition-all disabled:opacity-50"
                 value={score}
                 onChange={(e) => setScore(e.target.value)}
               />
               <input
                 type="date"
-                disabled={!isPremium}
-                className="flex-1 bg-neutral-50 border border-neutral-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
+                disabled={!isPremium || isSubmitting}
+                className="flex-1 bg-white border border-neutral-200 rounded-xl px-5 py-4 focus:ring-2 focus:ring-blue-500 outline-none text-neutral-900 font-black transition-all disabled:opacity-50"
                 value={scoreDate}
                 onChange={(e) => setScoreDate(e.target.value)}
               />
-              <button disabled={!isPremium} className="bg-blue-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-blue-700 disabled:opacity-50">
-                Add Score
+              <button 
+                disabled={!isPremium || isSubmitting} 
+                className="bg-blue-600 text-white px-8 py-4 rounded-xl font-black hover:bg-blue-700 disabled:opacity-50 shadow-lg shadow-blue-100 transition-all active:scale-95 flex items-center justify-center gap-2 min-w-[160px]"
+              >
+                {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : <Plus size={20} />}
+                Add Entry
               </button>
             </form>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {scores.map((s) => (
-                <div key={s.id} className="flex items-center justify-between p-4 bg-neutral-50 rounded-xl border border-neutral-100 hover:border-blue-200 transition-colors">
-                  <span className="text-neutral-500 font-medium text-sm">{s.date}</span>
-                  <span className="font-bold text-blue-900">{s.score} pts</span>
+                <div key={s.id} className="flex items-center justify-between p-5 bg-white rounded-2xl border border-neutral-100 hover:border-blue-300 hover:shadow-md transition-all group">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-blue-50 p-2 rounded-lg text-blue-500 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                      <Activity size={16} />
+                    </div>
+                    <span className="text-neutral-400 font-bold text-xs uppercase tracking-tighter">{s.date}</span>
+                  </div>
+                  <span className="font-black text-blue-900 text-lg">{s.score} <span className="text-[10px] text-neutral-400">PTS</span></span>
                 </div>
               ))}
             </div>
           </section>
-
-          {/* Monthly Draw Section */}
-          <section className={`rounded-2xl p-8 shadow-lg text-white transition-all ${isPremium ? 'bg-gradient-to-br from-indigo-900 to-blue-900' : 'bg-neutral-200'}`}>
-             <div className="flex items-center justify-between mb-6">
-              <h2 className={`text-2xl font-bold ${!isPremium && 'text-neutral-400'}`}>Monthly Draw Participation</h2>
-              <Trophy size={28} className={isPremium ? "text-amber-400" : "text-neutral-300"} />
-            </div>
-            <div className="grid grid-cols-2 gap-6">
-              <div className="bg-white/10 p-6 rounded-xl backdrop-blur-sm">
-                <p className={`${isPremium ? 'text-blue-200' : 'text-neutral-400'} text-sm mb-1`}>Status</p>
-                <p className={`text-xl font-semibold ${!isPremium && 'text-neutral-400'}`}>{isPremium ? 'Active Entry' : 'Subscription Required'}</p>
-              </div>
-              <div className="bg-white/10 p-6 rounded-xl backdrop-blur-sm">
-                <p className={`${isPremium ? 'text-blue-200' : 'text-neutral-400'} text-sm mb-1`}>Winnings</p>
-                <p className={`text-xl font-semibold ${!isPremium && 'text-neutral-400'}`}>$0.00</p>
-              </div>
-            </div>
-          </section>
         </div>
 
+        {/* Sidebar */}
         <div className="space-y-8">
-          <section className="bg-white rounded-2xl p-8 shadow-sm border border-neutral-100">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="bg-pink-50 p-3 rounded-xl text-pink-600">
-                <Heart size={24} />
+          {/* Charity Card */}
+          <section className="bg-white rounded-3xl p-8 shadow-sm border border-neutral-100 hover:shadow-md transition-all">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="bg-pink-100 p-4 rounded-2xl text-pink-600">
+                <Heart size={28} />
               </div>
-              <h2 className="text-xl font-bold text-neutral-900">Charity Impact</h2>
+              <h2 className="text-xl font-black text-neutral-900 tracking-tight">Global Impact</h2>
             </div>
-            <p className="text-sm text-neutral-500 mb-4">Supported Cause: <b>Global Education Fund</b></p>
-            <div className="flex items-baseline gap-2">
-              <p className="text-4xl font-bold text-pink-600">{isPremium ? '10%' : '0%'}</p>
-              <span className="text-xs text-neutral-400 font-semibold uppercase">Contributed</span>
+            <div className="space-y-4">
+              <div className="p-4 bg-neutral-50 rounded-2xl border border-neutral-100">
+                <p className="text-[10px] uppercase text-neutral-400 font-black mb-1 tracking-widest">Active Cause</p>
+                <p className="text-sm font-bold text-neutral-800">Clean Water Initiative</p>
+              </div>
+              <div className="flex items-baseline gap-2 mt-6">
+                <p className="text-5xl font-black text-pink-600">{isPremium ? '10%' : '0%'}</p>
+                <span className="text-[10px] text-neutral-400 font-black uppercase tracking-widest">Contribution</span>
+              </div>
             </div>
           </section>
 
-          <section className="bg-white rounded-2xl p-8 shadow-sm border border-neutral-100">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="bg-emerald-50 p-3 rounded-xl text-emerald-600">
-                <CreditCard size={24} />
+          {/* Membership Card */}
+          <section className="bg-white rounded-3xl p-8 shadow-sm border border-neutral-100 hover:shadow-md transition-all">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="bg-emerald-100 p-4 rounded-2xl text-emerald-600">
+                <CreditCard size={28} />
               </div>
-              <h2 className="text-xl font-bold text-neutral-900">Membership</h2>
+              <h2 className="text-xl font-black text-neutral-900 tracking-tight">Membership</h2>
             </div>
             
             {isPremium ? (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold uppercase flex items-center gap-1">
-                    <Crown size={12} /> Premium Member
+              <div className="space-y-6">
+                <div className="flex items-center justify-between bg-emerald-50 p-4 rounded-2xl border border-emerald-100">
+                  <span className="px-3 py-1 bg-emerald-600 text-white rounded-full text-[10px] font-black uppercase flex items-center gap-1.5 shadow-md shadow-emerald-100">
+                    <Crown size={12} /> Premium
                   </span>
-                  <span className="text-neutral-400 text-xs font-medium italic">Active</span>
+                  <span className="text-emerald-600 text-[10px] font-black uppercase tracking-widest animate-pulse">● Active</span>
                 </div>
-                <div className="p-4 bg-neutral-50 rounded-xl border border-neutral-100">
-                   <p className="text-[10px] uppercase text-neutral-400 font-bold mb-1">Next Draw</p>
-                   <p className="text-sm font-semibold text-neutral-700">April 15, 2026</p>
+                <div className="p-5 bg-neutral-900 rounded-2xl text-white shadow-xl">
+                   <p className="text-[10px] uppercase text-neutral-500 font-black mb-2 tracking-widest">Prize Draw Date</p>
+                   <div className="flex items-center justify-between">
+                      <p className="text-lg font-black italic">APRIL 15</p>
+                      <Trophy className="text-amber-400" size={24} />
+                   </div>
                 </div>
               </div>
             ) : (
-              <div className="space-y-4">
-                <p className="text-sm text-neutral-500">Currently on Free Tier. Upgrade to participate in draws and track scores.</p>
-                <button onClick={() => router.push('/subscribe')} className="w-full bg-blue-600 text-white py-3 rounded-xl text-sm font-bold shadow-md shadow-blue-100 hover:bg-blue-700 transition-all">
-                  Join Premium
+              <div className="space-y-6">
+                <p className="text-sm text-neutral-500 font-medium leading-relaxed text-center">Join 5,000+ players making a difference while they play.</p>
+                <button onClick={() => router.push('/subscribe')} className="w-full bg-blue-600 text-white py-4 rounded-2xl text-sm font-black shadow-xl shadow-blue-100 hover:bg-blue-700 transition-all active:scale-95">
+                  UPGRADE NOW
                 </button>
               </div>
             )}
