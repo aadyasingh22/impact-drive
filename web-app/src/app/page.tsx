@@ -14,10 +14,11 @@ export default function Home() {
         <div className="flex gap-8 items-center font-bold">
           <Link href="/charities" className="text-neutral-500 hover:text-blue-600 transition-colors text-sm">Charities</Link>
           
-          {/* CORRECTED LINK: Changed /login to /signin */}
+          {/* Sign In points to the existing signin folder */}
           <Link href="/signin" className="text-neutral-900 hover:text-blue-600 transition-colors text-sm">Sign In</Link>
           
-          <Link href="/subscribe" className="bg-blue-600 text-white px-6 py-3 rounded-2xl hover:bg-blue-700 transition-all transform hover:scale-105 shadow-xl shadow-blue-100 text-sm font-black">
+          {/* UPDATED: Changed from /subscribe to /signup */}
+          <Link href="/signup" className="bg-blue-600 text-white px-6 py-3 rounded-2xl hover:bg-blue-700 transition-all transform hover:scale-105 shadow-xl shadow-blue-100 text-sm font-black">
             Join the Club
           </Link>
         </div>
@@ -38,7 +39,8 @@ export default function Home() {
               Track your performance, enter monthly prize draws, and automatically support the causes you care about.
             </p>
             <div className="flex gap-4 items-center pt-4">
-              <Link href="/subscribe" className="bg-blue-600 text-white px-10 py-5 rounded-2xl text-lg font-black hover:bg-blue-700 transition-all transform hover:-translate-y-1 shadow-2xl shadow-blue-200 flex items-center gap-3 active:scale-95">
+              {/* UPDATED: Changed from /subscribe to /signup */}
+              <Link href="/signup" className="bg-blue-600 text-white px-10 py-5 rounded-2xl text-lg font-black hover:bg-blue-700 transition-all transform hover:-translate-y-1 shadow-2xl shadow-blue-200 flex items-center gap-3 active:scale-95">
                 Start Making an Impact <ArrowRight size={22} />
               </Link>
             </div>

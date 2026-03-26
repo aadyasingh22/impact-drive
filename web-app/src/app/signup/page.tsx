@@ -6,25 +6,25 @@ import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { Target, AlertCircle, Loader2 } from 'lucide-react'
 
-export default function Signin() {
+export default function Signup() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
-  const handleSignin = async (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
       })
       if (error) throw error
-
+      
       // Role-Based Routing
       if (data.user?.email === 'aadya123@gmail.com') {
         router.push('/admin')
@@ -45,16 +45,16 @@ export default function Signin() {
           <Target size={56} />
         </div>
         <h2 className="mt-6 text-center text-3xl font-black text-neutral-900 tracking-tight uppercase">
-          Welcome Back
+          Create Account
         </h2>
         <p className="mt-2 text-center text-sm text-neutral-500 font-bold">
-          Sign in to manage your impact
+          Join the global impact club today
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-10 px-6 shadow-2xl rounded-[2.5rem] border border-neutral-100 mx-4 sm:mx-0">
-          <form className="space-y-6" onSubmit={handleSignin}>
+          <form className="space-y-6" onSubmit={handleSignup}>
             <div>
               <label htmlFor="email" className="block text-xs font-black text-neutral-400 uppercase tracking-widest ml-1 text-left">
                 Email Address
@@ -107,24 +107,18 @@ export default function Signin() {
               disabled={loading}
               className="w-full flex justify-center py-4 px-4 border border-transparent rounded-2xl shadow-xl shadow-blue-100 text-base font-black text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 transition-all active:scale-95"
             >
-              {loading ? <Loader2 className="animate-spin" size={20} /> : 'SECURE SIGN IN'}
+              {loading ? <Loader2 className="animate-spin" size={20} /> : 'JOIN IMPACTDRIVE'}
             </button>
           </form>
 
           <div className="mt-10 text-center">
             <span className="text-xs uppercase font-black tracking-widest text-neutral-400">
-              New to ImpactDrive?{' '}
-              <Link href="/signup" className="text-blue-600 hover:underline underline-offset-8 decoration-2 ml-1">
-                Create Account
+              Already a member?{' '}
+              <Link href="/signin" className="text-blue-600 hover:underline underline-offset-8 decoration-2 ml-1">
+                Log in
               </Link>
             </span>
           </div>
-        </div>
-
-        <div className="mt-12 text-center">
-            <Link href="/" className="group text-xs font-black text-neutral-400 hover:text-neutral-900 transition-all flex items-center justify-center gap-2 uppercase tracking-widest">
-                <span className="group-hover:-translate-x-1 transition-transform">&larr;</span> Back to Home
-            </Link>
         </div>
       </div>
     </div>
